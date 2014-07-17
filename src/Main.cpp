@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Teleop.h"
-#include "Driven.h"
+
 
 ////////----------------------------//////////
 using namespace std;
@@ -22,6 +22,7 @@ int n_comfort = 6;
 int n_perf_exp = 6;
 int min_n_pref = 2;
 
+
 // return positions
 double dist_near = 0.25;
 double dist_far = 5.0;
@@ -30,7 +31,7 @@ double dist_choice = 0.0;
 // selected distances
 const int n_dists = 10;
 float dist[n_dists] = {0.25, 0.75, 1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25,4.75};
-
+//float REQ_POS_Arr[] = {middle,middle,far,near,far,near,far,0,far,0,far,0,far,0,far,far,far,far,far};
 //function definitions
 void write_dist(double vale) {
 	// move to this position
@@ -85,25 +86,20 @@ double drive()
 
 int main(int argc, char** argv)
 {
-  drive1();
-  drive2();
-  srand (time(NULL));
   functionCall();
+  
   ros::init(argc, argv, "teleop");
   TeleopTurtle teleop;
   ROS_INFO("In the Main");
 ///////////////////////////////////
-
+  
 	// int count = 0;
 	// TeleopPioneer Test[6];
 	double comf_dist[n_comfort];
 	//int len = int(sizeof(comf_dist)/sizeof(double));
-	for (int i = 0; i < 3; ++i)
-	{
-                teleop.init_func();
-		comf_dist[i] = drive();
+        teleop.init_func();
+		// comf_dist = drive();
 		// comf_dist[i] = read_artag();
-		write_dist(comf_dist[i]);	
-	}
+		//write_dist(comf_dist);	
   ros::spin();
 }

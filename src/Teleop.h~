@@ -2,7 +2,8 @@
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
 #include "Drive.h"
-#include "DriveLR.h"
+//#include "laserscan.h"
+#include <sensor_msgs/LaserScan.h>
 
 // int flag= 1 ; // global variable
 #ifndef TELEOPTURTLE_H_
@@ -12,42 +13,42 @@ class TeleopTurtle
 {
 public:
   TeleopTurtle()
-{
+  {
   linear_ = 1;
   angular_= 2;
   flag = 1;
-}
-
+ 
+ }
+  float dist;
   geometry_msgs::Twist vel;
   void init_func();
 private:
+  void lasercall(const sensor_msgs::LaserScan::ConstPtr& laser);
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
   void joyCall(const sensor_msgs::Joy::ConstPtr& wii);
-
   ros::NodeHandle nh_;
   int flag;
   int linear_, angular_;
-  double l_scale_, a_scale_;
   ros::Publisher vel_pub_;
   ros::Subscriber joy_sub_;
   ros::Subscriber wii_sub_;
-  
+  ros::Subscriber laser_sub_;
+
 };
 
 //TeleopTurtle::TeleopTurtle():
 
-
-
 void TeleopTurtle::init_func()
 {
   nh_.param("axis_linear", linear_, linear_);
-  nh_.param("scale_linear", l_scale_, l_scale_);
   vel_pub_ = nh_.advertise<geometry_msgs::Twist>("RosAria/cmd_vel", 1);
+  // laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 50, &TeleopTurtle::lasercall, this);
   joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 100, &TeleopTurtle::joyCallback, this);
   wii_sub_ = nh_.subscribe<sensor_msgs::Joy>("/wiimote/nunchuk", 10, &TeleopTurtle::joyCall, this);
-
 }
 
+
+//////////////-------------JOY CALL--------------///////////////////////
 void TeleopTurtle::joyCall(const sensor_msgs::Joy::ConstPtr& wii)
 {
     if(flag==0)
@@ -56,9 +57,8 @@ void TeleopTurtle::joyCall(const sensor_msgs::Joy::ConstPtr& wii)
 	vel = user_drive_fb(0.27*wii->axes[linear_], vel); // vel belongs to geometry_msgs::Twist 
 	vel_pub_.publish(vel);
 	ROS_INFO("Wiimote control with VALUE: %f and FLAG: %d",vel.linear.x,flag);
-///----------------------------------------------------------///////////////
 
-     if(wii->buttons[0] == 1)   // escape sequence for user by pressing the A button
+    if(wii->buttons[0] == 1)   // escape sequence for user by pressing the A button
         {
             flag = 1;
             joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 100, &TeleopTurtle::joyCallback, this); // coming out of function
@@ -68,9 +68,61 @@ void TeleopTurtle::joyCall(const sensor_msgs::Joy::ConstPtr& wii)
         joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 100, &TeleopTurtle::joyCallback, this); // coming out of function
 }
 
+////////////----------LASER CALL------------////////////////////////////////
+void TeleopTurtle::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
+{
+  ROS_INFO("INSIDE THE LASERSCAN FUNCTION");
+
+  //laser->angle_min = min_angle_;
+  //laser->angle_max = max_angle_;
+  
+   dist = laser->ranges[0];
+  //ros::Rate r(1.0);
+    float REQ_POS =3.00; 
+    if (REQ_POS != dist)
+    {	
+      //lasercall(const sensor_msgs::LaserScan::ConstPtr& laser);
+      //laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 50, &TeleopTurtle::lasercall, this);  
+       ROS_INFO("The distance is: %f",dist);
+      if(REQ_POS>dist)
+        { 
+	ROS_INFO("The robot is going forward!");
+        vel= user_drive_fb(0.2, vel);
+        }
+      else if(REQ_POS<dist)
+      {
+	ROS_INFO("The robot is going backward!");
+        vel=user_drive_fb(-0.2,vel);
+      }
+      else
+      {
+	ROS_INFO("Stopping Robot");
+        vel = user_drive_fb(0.0,vel);
+	vel_pub_.publish(vel);    
+      }
+ 
+   ROS_INFO("Driving with velocity: %f and distance from targe: %f", vel.linear.x,dist);
+   vel_pub_.publish(vel);
+    } 	 
+ 
+  ROS_INFO("The distance value is: %f", dist);
+} 
+if(flag==1)
+  {
+   joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 100, &TeleopTurtle::joyCallback, this);
+  } 
+}
+
+
+////////////////---------JOY CALL BACK-------------///////////////////
+
 void TeleopTurtle::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
- float temp =0 ;
+
+  if((joy->buttons[11]==1) && (joy->buttons[3]==1))
+   { 
+   laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 50, &TeleopTurtle::lasercall, this);  
+   file_handling(dist);
   if((joy->buttons[10] == 1))
   {
       flag = 0;
@@ -84,35 +136,26 @@ void TeleopTurtle::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
       ROS_INFO("Working with PS3 Controller");
       if (joy->buttons[4] == 1)
        {
-		temp = joy->buttons[4];
-		vel= user_drive_fb(0.2*temp, vel);
+		vel= user_drive_fb(0.2*joy->buttons[4], vel);
 		ROS_INFO("You are going UP with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
-          	temp = 0;
-        }
+       }
 
 ///----------------------------------------------------------/////
       if (joy->buttons[5] == 1)
       {
-	  temp = joy->buttons[5];
-          vel = user_drive_lr(-0.4*joy->buttons[5],vel);
+	  vel = user_drive_lr(-0.4*joy->buttons[5],vel);
           ROS_INFO("You are going RIGHT with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
-          temp = 0;
       }
 
       if (joy->buttons[6] == 1)
       {
-	  temp = joy->buttons[6];
-          vel= user_drive_fb(-0.2*temp,vel);
+	  vel= user_drive_fb(-0.2*joy->buttons[6],vel);
           ROS_INFO("You are going DOWN with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
-          
-temp = 0;
       }
       if (joy->buttons[7] == 1)
       {
-	  temp = joy->buttons[7];
-          vel = user_drive_lr(0.4*temp,vel);
+          vel = user_drive_lr(0.4*joy->buttons[7],vel);
           ROS_INFO("You are going LEFT with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
- 	   temp = 0;     
       }
 ////-----------------------------------------------------/////////
    
@@ -122,8 +165,7 @@ temp = 0;
           vel = user_drive_fb(0*joy->buttons[8],vel);
           vel.angular.z = 0*joy->buttons[8];
           ROS_INFO("You have stopped with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
-	  
-       } 
+	} 
    vel_pub_.publish(vel);
 }
 // ROS_INFO("Stopped with : %d , %d", joy->buttons[4],flag);
