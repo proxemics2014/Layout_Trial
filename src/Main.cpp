@@ -90,16 +90,15 @@
 	  ros::init(argc, argv, "teleop");
 	  TeleopTurtle teleop;
 	  ROS_INFO("In the Main");
-	///////////////////////////////////
-	  
-		// int count = 0;
-		// TeleopPioneer Test[6];
-		double comf_dist[n_comfort];
-		//int len = int(sizeof(comf_dist)/sizeof(double));
-	        teleop.init_func();
-			// comf_dist = drive();
-			// comf_dist[i] = read_artag();
-			//write_dist(comf_dist);	
+/////////////////////////////////////////////
+      // int count = 0;
+	  // TeleopPioneer Test[6];
+	  double comf_dist[n_comfort];
+	  //int len = int(sizeof(comf_dist)/sizeof(double));
+	  teleop.init_func();
+	  // comf_dist = drive();
+	  // comf_dist[i] = read_artag();
+	  //write_dist(comf_dist);	
 	  ros::spin();
 	}
 	

@@ -125,3 +125,13 @@
 	#endif
 	*/
 	// Create a random number generator function which takes in an integer variable as an input and returns rand() % i !! if i is the argument
+    #ifndef RANDOM_PROB_H_
+    #define	RANDOM_PROB_H_ 
+    double random_prob()
+     {
+      double u;
+      srand ( signed(time(NULL)));
+      u=(double)rand()/(RAND_MAX);
+      return u;
+     }
+    #endif

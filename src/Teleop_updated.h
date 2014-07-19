@@ -5,6 +5,7 @@
 	#include <sensor_msgs/LaserScan.h>
 	#include <iostream>
     #include "Performance.h"
+	#include "chooseFunction.h"
 	
 	#ifndef TELEOPTURTLE_H_
 	#define TELEOPTURTLE_H_
@@ -74,7 +75,7 @@
 	  ROS_INFO("Value of i is: %d",Q);
 	  return_array(); 
 	  srand (time(NULL));
-	  chosenfunction = rand()%4;
+	  chosenfunction = chooseFunction();   // this function reads DATA from the file and correspodingly returns the CHOSEN FUNCTION!
 	  ROS_INFO("Value of Chosen Function: %d",chosenfunction);
 	}
 	

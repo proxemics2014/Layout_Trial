@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <cstdio>
 /*
@@ -61,7 +60,6 @@ double calc_performance_far(double distance)
 // (peak = 0.25 between MIN_/MAX_DISTANCE)
 double calc_performance_near(double distance)
 {
-
   return calc_performance_peak(distance, 0.25);
 }
 #endif /*CALC_PERFORMANCE_NEAR_H*/
