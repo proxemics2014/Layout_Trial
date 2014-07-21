@@ -30,7 +30,7 @@
 	
 	// selected distances
 	const int n_dists = 10;
-	float dist[n_dists] = {0.25, 0.75, 1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25,4.75};
+	//float dist[n_dists] = {0.25, 0.75, 1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25,4.75};
 	//float REQ_POS_Arr[] = {middle,middle,far,near,far,near,far,0,far,0,far,0,far,0,far,far,far,far,far};
 	//function definitions
 	void write_dist(double vale) {
@@ -88,8 +88,9 @@
 	{
 	  functionCall();
 	  ros::init(argc, argv, "teleop");
+	  ROS_INFO("In the Main");	  
 	  TeleopTurtle teleop;
-	  ROS_INFO("In the Main");
+
 /////////////////////////////////////////////
       // int count = 0;
 	  // TeleopPioneer Test[6];

@@ -11,7 +11,7 @@
 	#ifndef USER_DRIVE_FB_H_
 	#define USER_DRIVE_FB_H_
 	
-	geometry_msgs::Twist user_drive_fb(float x, geometry_msgs::Twist v) // user_drive function 
+	geometry_msgs::Twist drive_fb(float x, geometry_msgs::Twist v) // user_drive function 
 	{
 	    
 //	    ros::Duration(0.5).sleep();	
@@ -22,7 +22,7 @@
 	   // ROS_INFO("In drive function vel : %f",v.linear.x);	
 	  //  vel_pub_ = nh_.advertise<geometry_msgs::Twist>("RosAria/cmd_vel", 1);
 	  //  vel_pub_.publish(v);
-	 return v;
+	    return v;
 	}
 	#endif
 	
@@ -30,10 +30,10 @@
 	#ifndef USER_DRIVE_LR_H_
 	#define USER_DRIVE_LR_H_
 	
-	geometry_msgs::Twist user_drive_lr(float x, geometry_msgs::Twist v) // user_drive function 
+	geometry_msgs::Twist drive_lr(float x, geometry_msgs::Twist v) // user_drive function 
 	{
 	
-	  ros::Rate r(10);
+	    ros::Rate r(10);
 		v.angular.z= x;
 		return v;
 	}
@@ -130,8 +130,21 @@
     double random_prob()
      {
       double u;
-      srand ( signed(time(NULL)));
+      srand (signed(time(NULL)));
       u=(double)rand()/(RAND_MAX);
       return u;
      }
     #endif
+
+     #ifndef RANDOM_NUMBER_GEN_H_
+     #define RANDOM_NUMBER_GEN_H_
+     int rand_num_gen(int n)
+     {
+     	srand (time(NULL));
+     	int r;
+     	r = rand() % n;
+     	return r;
+     }
+     #endif
+
+  
