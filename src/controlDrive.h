@@ -48,7 +48,7 @@ void controlDrive()
     }
   
   float angularError = leftSideDistance - rightSideDistance;
-
+  
   if(linearError > 0)
     {
       vel.linear.x = kp_linear_*linearError;

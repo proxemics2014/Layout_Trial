@@ -1,10 +1,10 @@
 #include <iostream>
 #include <cstdio>
 /*
-#define MIN_PERFORMANCE (0.1)
-#define MAX_PERFORMANCE (0.9)
-#define MIN_DISTANCE (0.25)
-#define MAX_DISTANCE (4.75)
+  #define MIN_PERFORMANCE (0.1)
+  #define MAX_PERFORMANCE (0.9)
+  #define MIN_DISTANCE (0.25)
+  #define MAX_DISTANCE (4.75)
 */
 double MIN_PERFORMANCE = 0.1;
 double MAX_PERFORMANCE = 0.9;
@@ -86,78 +86,78 @@ extern float compare=1.0;
 // typedef double (*fptr)();
 int uniform=0,farperf=0,midperf=0,nearperf=0;
 double functioncall(int random, double distance)
-	{
-	  if(random==0)
-	  {
-		compare = 0.9;
-		cout<<"Uniform function!";
-		uniform++;
-		return calc_performance_uniform(distance);
-	  }
-	    if(random==1)
-	    {
-		compare = 0.75;
-		farperf++;
-		cout<<"Far function!";
-		return calc_performance_far(distance);
-	    }
-	    if(random==2)
-	    {
-		compare = 0.5;
-		midperf++;
-		cout<<"Mid function!";
-		return calc_performance_mid(distance);
-	    }
-	    if(random==3)
-	    {
-		compare = 0.25;
-		nearperf++;
-		cout<<"Near function!";
-		return calc_performance_near(distance);
-	    }
-	}
+{
+  if(random==0)
+    {
+      compare = 0.9;
+      cout<<"Uniform function!";
+      uniform++;
+      return calc_performance_uniform(distance);
+    }
+  if(random==1)
+    {
+      compare = 0.75;
+      farperf++;
+      cout<<"Far function!";
+      return calc_performance_far(distance);
+    }
+  if(random==2)
+    {
+      compare = 0.5;
+      midperf++;
+      cout<<"Mid function!";
+      return calc_performance_mid(distance);
+    }
+  if(random==3)
+    {
+      compare = 0.25;
+      nearperf++;
+      cout<<"Near function!";
+      return calc_performance_near(distance);
+    }
+}
 #endif
 
-   #ifndef PEAK_VALUE_H_
-   #define PEAK_VALUE_H_
-    double peak_value(int c)
-     {
-     	double max=0.0,temp=0.0;
-     	for(double i=0.25;i<5;i+=0.05)
-     	{
-     		if(c==0)
-     		{
-     			temp= calc_performance_uniform(i);
-     			if(max<temp)
-     			{
-     				max=temp;
-     			}
-     		}
-     		if(c==1)
-     		{
-     			temp= calc_performance_far(i);
-     			if(max<temp)
-     			{
-     				max=temp;
-     			}
-     		}
-     		if(c==2)
-     		{
-     			temp= calc_performance_mid(i);
-     			if(max<temp)
-     			{
-     				max=temp;
-     			}
-     		}
-     		if(c==3)
-     		{
-     			temp= calc_performance_near(i);
-     			if(max<temp)
-     			{
-     				max=temp;
-     			}
-     		}
-     	}
-     	return max; 	
-     }
-     #endif
+#ifndef PEAK_VALUE_H_
+#define PEAK_VALUE_H_
+double peak_value(int c)
+{
+  double max=0.0,temp=0.0;
+  for(double i=0.25;i<5;i+=0.05)
+    {
+      if(c==0)
+	{
+	  temp= calc_performance_uniform(i);
+	  if(max<temp)
+	    {
+	      max=temp;
+	    }
+	}
+      if(c==1)
+	{
+	  temp= calc_performance_far(i);
+	  if(max<temp)
+	    {
+	      max=temp;
+	    }
+	}
+      if(c==2)
+	{
+	  temp= calc_performance_mid(i);
+	  if(max<temp)
+	    {
+	      max=temp;
+	    }
+	}
+      if(c==3)
+	{
+	  temp= calc_performance_near(i);
+	  if(max<temp)
+	    {
+	      max=temp;
+	    }
+	}
+    }
+  return max; 	
+}
+#endif
