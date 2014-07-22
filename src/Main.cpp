@@ -10,7 +10,7 @@
 using namespace std;
 // functions
 void write_dist(double);
-void functionCall();
+void fCall();
 double drive();
 
 //void generate_perf_dists();
@@ -48,7 +48,7 @@ void write_dist(double vale) {
 
 
 ///////////////*****FUNCTION CALL*****/////////////////////////
-void functionCall()
+void fCall()
 {
   int y;
   ifstream myfile;
@@ -61,13 +61,13 @@ void functionCall()
   y = y + 1;
   ofstream out;
   out.open("/home/robotlab/File Read/UserID.txt", ios::ate);
-  out << y;
+  out << y ;
   out.close();
   int uid = y;
   ofstream in;
   in.open("/home/robotlab/File Read/write.csv", ios::ate | ios::app);
   if (in.is_open()) {
-    in << "\n" << uid << ",";
+    in << "\n" << uid << " ";
     in.close();
   } else {
     cout << "\nUnable to open file!";
@@ -86,7 +86,7 @@ double drive()
 
 int main(int argc, char** argv)
 {
-  functionCall();
+  fCall();
   ros::init(argc, argv, "teleop");
   ROS_INFO("In the Main");	  
   TeleopTurtle teleop;

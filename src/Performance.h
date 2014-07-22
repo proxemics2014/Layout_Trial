@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include <fstream>
 /*
   #define MIN_PERFORMANCE (0.1)
   #define MAX_PERFORMANCE (0.9)
@@ -10,7 +11,7 @@ double MIN_PERFORMANCE = 0.1;
 double MAX_PERFORMANCE = 0.9;
 double MIN_DISTANCE = 0.25;
 double MAX_DISTANCE = 4.75;
-
+using namespace std;
 
 
 #ifndef CALC_PERFORMANCE_PEAK_H
@@ -84,9 +85,13 @@ extern float compare=1.0;
 #define FUNCTIONCALL_H_
 
 // typedef double (*fptr)();
-int uniform=0,farperf=0,midperf=0,nearperf=0;
 double functioncall(int random, double distance)
 {
+  int uniform=0,farperf=0,midperf=0,nearperf=0;
+  ofstream out;
+  out.open("/home/robotlab/catkin_ws/src/Layout_Trial/src/list.txt");
+  if(out.is_open())
+  {
   if(random==0)
     {
       compare = 0.9;
@@ -115,6 +120,9 @@ double functioncall(int random, double distance)
       cout<<"Near function!";
       return calc_performance_near(distance);
     }
+  out << uniform << farperf << midperf << nearperf;
+  out.close();
+  }
 }
 #endif
 
@@ -160,4 +168,42 @@ double peak_value(int c)
     }
   return max; 	
 }
+#endif
+
+
+#ifndef FILE_HANDLING_H_
+#define FILE_HANDLING_H_
+
+void file_handling (float distance_written, int chosenOne)
+{
+  ofstream in;
+  double performance_written;
+  in.open("/home/robotlab/File Read/write.csv", ios::ate | ios::app);
+  if(chosenOne==0) 
+    {
+  performance_written = calc_performance_uniform(double(distance_written));
+    }
+  if(chosenOne==1)
+    {
+  performance_written = calc_performance_far(double(distance_written));
+    }
+  if(chosenOne==2)
+    {
+  performance_written = calc_performance_mid(double(distance_written));
+    }
+  if(chosenOne==3)
+    {
+  performance_written = calc_performance_near(double(distance_written));
+    }
+  
+  if (in.is_open()) 
+    {
+      in << distance_written<<","<<performance_written<< " " ;
+      in.close();
+    } 
+  else 
+    {
+    cout << "\nUnable to open file!";
+  }
+}      
 #endif

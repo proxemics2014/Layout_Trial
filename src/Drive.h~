@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <time.h>
+#include "Performance.h"
 using namespace std;
 
 
@@ -61,6 +62,41 @@ geometry_msgs::Twist drive_lr(float x, geometry_msgs::Twist v) // user_drive fun
   }
   #endif
 */
+#ifndef FILE_HANDLING_H_
+#define FILE_HANDLING_H_
+
+void file_handling (float distance_written, int chosenOne)
+{
+  ofstream in;
+  in.open("/home/robotlab/File Read/write.csv", ios::ate | ios::app);
+  if(chosenOne==0) 
+    {
+	performance_written = calc_performance_uniform(double(distance_written));
+    }
+  if(chosenOne==1)
+    {
+	performance_written = calc_performance_uniform(double(distance_written));
+    }
+  if(chosenOne==2)
+    {
+	performance_written = calc_performance_uniform(double(distance_written));
+    }
+  if(chosenOne==3)
+    {
+	performance_written = calc_performance_uniform(double(distance_written));
+    }
+	
+  if (in.is_open()) 
+    {
+      in << distance_written<<" "<<performance_written;
+      in.close();
+    } 
+  else 
+    {
+    cout << "\nUnable to open file!";
+  }
+}	     
+#endif
 
 #ifndef RANDOM_NUM_H_
 #define RANDOM_NUM_H_

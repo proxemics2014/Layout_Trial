@@ -4,9 +4,9 @@
 #include "Drive.h"
 #include <sensor_msgs/LaserScan.h>
 #include <iostream>
+#include "Performance.h"
 #include "chooseFunction.h"
 #include <algorithm>
-#include "Performance.h"
 
 #ifndef TELEOPTURTLE_H_
 #define TELEOPTURTLE_H_
@@ -127,7 +127,7 @@ void TeleopTurtle::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
 	    }
 	  else if(((dist-0.05)<=(AUTO_POS[Q])) && (AUTO_POS[Q]<=(dist+0.05)))
 	    {
-	      file_handling(dist,chosenfunction);
+	      file_handling(dist);
 	      ROS_INFO("Stopping Robot");
 	      flag =1;
 	      vel = drive_fb(0.0,vel);
@@ -176,7 +176,7 @@ void TeleopTurtle::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
       user_inputs[p++]= dist;
       shuffled_pos[5] = (user_inputs[0]+user_inputs[1])/2;
       cout<<"Writing distance to file!!! ";
-      file_handling(dist,chosenfunction);
+      file_handling(dist);
       //joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 10, &TeleopTurtle::joyCallback, this);
     }
   else
