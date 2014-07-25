@@ -1,0 +1,18 @@
+<package>
+  <description brief="bandit_look_at_target">
+
+     bandit_look_at_target
+
+  </description>
+  <author>Edward Kaszubski</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/bandit_look_at_target</url>
+  <depend package="roscpp"/>
+  <depend package="libbandit"/>
+  <depend package="bandit_msgs"/>
+  <depend package="tf"/>
+
+</package>
+
+

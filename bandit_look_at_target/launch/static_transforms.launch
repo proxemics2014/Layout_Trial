@@ -1,0 +1,7 @@
+<launch>
+	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
+	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
+	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
+	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
+	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
+</launch>

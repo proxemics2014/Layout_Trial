@@ -1,0 +1,1 @@
+rosbuild_add_executable( bandit_look_at_target_node bandit_look_at_target_node.cpp )
