@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Performance.h"
 
-extern float compare=1.0;
+//extern float compare=1.0;
 
 #ifndef FUNCTIONCALL_H_
 #define FUNCTIONCALL_H_

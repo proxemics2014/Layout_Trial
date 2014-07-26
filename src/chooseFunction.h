@@ -1,52 +1,50 @@
 #include <iostream>
 #include <fstream>
-#include <time.h>
 #include <stdlib.h>
+#include <time.h>
+#include <stdio.h>
 #include "Drive.h"
 
-using namespace std;
 
 #ifndef CHOOSEFUNCTION_H_
 #define CHOOSEFUNCTION_H_
 
+using namespace std;
+
 int chooseFunction()
 {
-  int A, B, C, D;
+  float A, B, C, D;
   float func_A, func_B, func_C, func_D, total;
-  
-  /*********************************************
-   **** READING NUMBER OF TIMES THE VARIOUS ****
-   **** NUMBER OF TIMES THE FUNCTIONS ARE   ****
-   **** CALLED                              ****
-   ********************************************/
-  
-  ifstream infile("/home/robotlab/catkin_ws/src/Layout_Trial/src/list.txt");
-  while(infile >> A >> B >> C >> D);
-  
-  /*********************************************
-   **** CALCULATING THE PROBABILITY OF EACH ****
-   **** FUNCTION THAT CAN BE CALLED NEXT    ****
-   ********************************************/
-  
+  fstream in;
+  in.open("/home/robotlab/catkin_ws/src/Layout_Trial/src/list.txt");
+  in >> A >>B>>C>> D;
   total = A + B + C + D;
-  
+  if(total==0)
+  {
+    total=1;
+  }
   func_A = A/total;
   func_B = B/total;
   func_C = C/total;
   func_D = D/total;
-  
-  /*********************************************
-   **** RETURNING THE ID OF THE REQUIRED    ****
-   **** FUNCTION                            ****
-   ********************************************/
-  
-  //srand (time(NULL));
-  if(((func_A<func_B) && (func_A<func_C)) && (func_A<func_D)) return 0;
-  else if(((func_B<func_A) && (func_B<func_C)) && (func_B<func_D)) return 1;
-  else if(((func_C<func_A) && (func_C<func_B)) && (func_C<func_D)) return 2;
-  else if(((func_D<func_A) && (func_D<func_B)) && (func_D<func_C)) return 3;
-  else return rand()%4;
-  return rand_num_gen(4);
+  int r;
+  in.close();
+  srand (time(NULL));
+  in.open("/home/robotlab/catkin_ws/src/Layout_Trial/src/list.txt");
+  if ((func_A<func_B) && (func_A<func_C) && (func_A<func_D)) { ++A; in << A << " " << B << " " << C << " "<< D; in.close();return 0; }
+  else if( (func_B<func_A) && (func_B<func_C) && (func_B<func_D)) { ++B; in << A << " " << B << " " << C << " "<< D; in.close();return 1; }
+  else if( (func_C<func_A) && (func_C<func_B) && (func_C<func_D)) { ++C; in << A << " " << B << " " << C << " "<< D; in.close();return 2; }
+  else if ( (func_D<func_A) && (func_D<func_B) && (func_D<func_C)) {  ++D; in << A << " " << B << " " << C << " "<< D; in.close();return 3; }
+  else 
+  {   
+  srand (time(NULL));  
+  r= rand()%4;
+  if(r==0) { ++A; in << A << " " << B << " " << C << " "<< D;  }
+  else if(r==1) { ++B; in << A << " " << B << " " << C << " "<< D;  }
+  else if(r==2) { ++C; in << A << " " << B << " " << C << " "<< D;  }
+  else if(r==3) { ++D; in << A << " " << B << " " << C << " "<< D;   }
+  in.close();
+  return r; 
+  }
 }
-
-#endif /* chooseFunction.h */
+#endif

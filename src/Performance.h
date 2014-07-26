@@ -36,8 +36,7 @@ double calc_performance_peak(double distance, double peak)
 
 // uniform distribution
 double calc_performance_uniform(double distance)
-{
-  cout<<"Uniform function!";	
+{	
   return MAX_PERFORMANCE;
 }
 
@@ -49,7 +48,6 @@ double calc_performance_uniform(double distance)
 // (peak = 0.75 between MIN_/MAX_DISTANCE)
 double calc_performance_far(double distance)
 {
-  cout<<"Far function!";
   return calc_performance_peak(distance, 0.75);
 } 
 #endif /* CALC_PERFORMANCE_FAR_H */
@@ -72,7 +70,6 @@ double calc_performance_near(double distance)
 // (peak = 0.5 between MIN_/MAX_DISTANCE)
 double calc_performance_mid(double distance)
 {
-  cout<<"Mid function!";
   return calc_performance_peak(distance, 0.5);
 }
 #endif /* CALC_PERFORMANCE_MID_H */
@@ -87,42 +84,35 @@ extern float compare=1.0;
 // typedef double (*fptr)();
 double functioncall(int random, double distance)
 {
-  int uniform=0,farperf=0,midperf=0,nearperf=0;
-  ofstream out;
-  out.open("/home/robotlab/catkin_ws/src/Layout_Trial/src/list.txt");
-  if(out.is_open())
-  {
   if(random==0)
     {
-      compare = 0.9;
-      cout<<"Uniform function!";
-      uniform++;
+     // compare = 0.9;
+     // cout<<"Uniform function!";
+//      uniform++;
       return calc_performance_uniform(distance);
     }
   if(random==1)
     {
-      compare = 0.75;
-      farperf++;
-      cout<<"Far function!";
+     // compare = 0.75;
+//      farperf++;
+   //   cout<<"Far function!";
       return calc_performance_far(distance);
     }
   if(random==2)
     {
-      compare = 0.5;
-      midperf++;
-      cout<<"Mid function!";
+     // compare = 0.5;
+ //     midperf++;
+    //  cout<<"Mid function!";
       return calc_performance_mid(distance);
     }
   if(random==3)
     {
-      compare = 0.25;
-      nearperf++;
-      cout<<"Near function!";
+    //  compare = 0.25;
+  //    nearperf++;
+   //   cout<<"Near function!";
       return calc_performance_near(distance);
     }
-  out << uniform << farperf << midperf << nearperf;
-  out.close();
-  }
+  
 }
 #endif
 
@@ -134,7 +124,7 @@ double peak_value(int c)
   for(double i=0.25;i<5;i+=0.05)
     {
       if(c==0)
-	{
+	  {
 	  temp= calc_performance_uniform(i);
 	  if(max<temp)
 	    {

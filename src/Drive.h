@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
+#include <sensor_msgs/LaserScan.h>
 #include "laserscan.h"
 #include <fstream>
 #include <iostream>
@@ -8,59 +9,51 @@
 using namespace std;
 
 
-#ifndef USER_DRIVE_FB_H_
-#define USER_DRIVE_FB_H_
+#ifndef USER_DRIVE_F_H_
+#define USER_DRIVE_F_H_
 
-geometry_msgs::Twist drive_fb(float x, geometry_msgs::Twist v) // user_drive function 
+geometry_msgs::Twist drive_f(float x, geometry_msgs::Twist v, float distance_value) // user_drive function 
 {
-  
-  //	    ros::Duration(0.5).sleep();	
   v.linear.x = x;
-  
-  //	    r.sleep();
-  //    ros::Publisher vel_pub_;
-  // ROS_INFO("In drive function vel : %f",v.linear.x);	
-  //  vel_pub_ = nh_.advertise<geometry_msgs::Twist>("RosAria/cmd_vel", 1);
-  //  vel_pub_.publish(v);
   return v;
 }
 #endif
+
+#ifndef USER_DRIVE_FB_H_
+#define USER_DRIVE_FB_H_
+
+geometry_msgs::Twist drive_fb(float x, geometry_msgs::Twist v, float distance_value) // user_drive function 
+{
+  //ros::Duration(0.5).sleep();
+  v.linear.x = x;
+  return v;
+}
+#endif
+
+#ifndef USER_DRIVE_B_H_
+#define USER_DRIVE_B_H_
+
+
+geometry_msgs::Twist drive_b(float x, geometry_msgs::Twist v, float distance_value) // user_drive function 
+{
+  //ros::Duration(0.5).sleep();
+  v.linear.x = x;
+  return v;
+}
+#endif
+
 
 
 #ifndef USER_DRIVE_LR_H_
 #define USER_DRIVE_LR_H_
 
-geometry_msgs::Twist drive_lr(float x, geometry_msgs::Twist v) // user_drive function 
+geometry_msgs::Twist drive_lr(float x, geometry_msgs::Twist v,float distance_value) // user_drive function 
 {
-  
-  ros::Rate r(10);
-  v.angular.z= x;
+  //ros::Duration(0.5).sleep();
+  v.angular.z = x;
   return v;
 }
 #endif
-/*
-  #ifndef AUTO_DRIVE_H_
-  #define AUTO_DRIVE_H_
-  
-  void auto_drive(float REQ_POS)
-  {
-  LaserScan l;	
-  while (REQ_POS != l.dist)
-  {
-  if(REQ_POS>l.dist)
-  { 
-  vel.linear.x=0.2;
-  }
-  else if(REQ_POS<l.dist)
-  {
-  vel.linear.x =-0.2;
-  }
-  else
-  break;
-  }
-  }
-  #endif
-*/
 
 #ifndef RANDOM_NUM_H_
 #define RANDOM_NUM_H_
@@ -72,7 +65,6 @@ float* random_num()
   float *ptr = new float[4];
   for(int i=0;i<4;i++)
     {
-      
       ptr[i] = Seq[rand()%10];
     }
   return ptr;
@@ -80,34 +72,6 @@ float* random_num()
 
 #endif
 
-/*
-  #ifndef RETURN_ARRAY_H_
-  #define RETURN_ARRAY_H_
-  float* return_array ()
-  {
-  int sizeof_array = 18;
-  float far = 5.0;
-  float near = 0.25;
-  float middle = 2.38;
-  float REQ_POS_Arr[] = {middle,middle,far,near,far,near,far,0,far,0,far,0,far,0,far,far,far,far,far};
-  float* ptrm;
-  ptrm = random_num();
-  for(int i=0,j=7; i<4;i++,j+=2)
-  { 
-  REQ_POS_Arr[j] = *(ptrm+i);
-  }
-  float *ptrF = new float [18];
-  ptrF = REQ_POS_Arr;
-  cout<<"Printing Array REQ_POS in DRIVE.h : ";
-  for(int j=0;j<18;j++)
-  {
-  cout<<*(ptrF+j)<<" ";
-  } 
-  cout<<endl;
-  return ptrF;
-  }
-  #endif
-*/
 // Create a random number generator function which takes in an integer variable as an input and returns rand() % i !! if i is the argument
 #ifndef RANDOM_PROB_H_
 #define	RANDOM_PROB_H_ 
@@ -130,3 +94,28 @@ int rand_num_gen(int n)
   return r;
 }
 #endif
+
+#ifndef RETURN_DISTANCE_H_
+#define RETURN_DISTANCE_H_
+float return_distance(sensor_msgs::LaserScan laser)
+{
+  return laser.ranges[0];
+}
+#endif
+
+#ifndef DRIVE_FUNCTION_H_
+#define DRIVE_FUNCTION_H_
+geometry_msgs::Twist driver(float linearError)
+{
+      geometry_msgs::Twist velo;
+      float kp_linear_ = 0.75;
+      geometry_msgs::Twist vel;
+      velo.linear.x = kp_linear_ * linearError;
+      //vel.angular.z = kp_angular_ * angularError;
+      float vel_linear_threshold_ = 0.025;
+     // float vel_angular_threshold_ = 0.025;
+      if (abs(velo.linear.x) < vel_linear_threshold_) velo.linear.x = 0.0;
+      //if (abs(vel.angular.z) < vel_angular_threshold_) vel.angular.z = 0.0;     
+    return velo;
+    }
+#endif /*Drive_Function_H_ */
