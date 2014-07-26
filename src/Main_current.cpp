@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "Tele_current.h"
+#include <Tele_current.h>
 
 
 const int n_dists = 10;

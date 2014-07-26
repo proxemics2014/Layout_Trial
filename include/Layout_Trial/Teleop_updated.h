@@ -99,7 +99,7 @@ void TeleopTurtle::joyCall(const sensor_msgs::Joy::ConstPtr& wii)
     if(flag==0)
     {
       ROS_INFO("Entering Wiimote function call");
-      vel = drive_fb(-0.5*wii->axes[linear_], vel, dist); // vel belongs to geometry_msgs::Twist  CHANGED TO SUIT THE USER!!
+      vel = drive_f(-0.5*wii->axes[linear_], vel); // vel belongs to geometry_msgs::Twist  CHANGED TO SUIT THE USER!!
       //laser_Wii.ranges[0] = return_distance(laser_Wii);
       //if(laser_Wii.ranges[0]<2.3)
       if(0.5<dist && dist<2.3)
@@ -137,7 +137,7 @@ void TeleopTurtle::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
 	  if(dist==0)
 	    {
 	      ROS_INFO("The robot is going backward!");
-	      vel=drive_fb(-0.2,vel,dist); 
+	      vel=drive_f(-0.2,vel); 
 	    }
 	  else if(((dist-0.05)<=(AUTO_POS[Q])) && (AUTO_POS[Q]<=(dist+0.05)))
 	    {
@@ -145,7 +145,7 @@ void TeleopTurtle::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
 	      ROS_INFO("Stopping Robot");
 	      perf_dist = functioncall(chosenfunction,double(dist));
         flag =1;
-	      vel = drive_fb(0.0,vel,dist);
+	      vel = drive_f(0.0,vel);
 	      vel_pub_.publish(vel);    
 	      system("mplayer /home/robotlab/catkin_ws/src/Layout_Trial/src/Stop.mp3");  // stopping sound
         cout<<"\n\n\n\n--------------------Value of shuffled array: ---------------------";
@@ -163,7 +163,7 @@ void TeleopTurtle::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
 	      ROS_INFO("THE VALUE OF Q is: %d", Q);
 	      ROS_INFO("THE VALUE OF Q is: %d", Q);
 	      ROS_INFO(" ");
-	      vel= drive_fb(0.4, vel,dist);
+	      vel= drive_f(0.4, vel);
 	    }
 	  else
 	    {
@@ -172,7 +172,7 @@ void TeleopTurtle::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
 	      ROS_INFO("THE VALUE OF Q is: %d", Q);
 	      ROS_INFO("THE VALUE OF Q is: %d", Q);
 	      ROS_INFO(" ");
-	      vel=drive_fb(-0.4,vel,dist);
+	      vel=drive_f(-0.4,vel);
 	    }
 	}
       vel_pub_.publish(vel);
@@ -281,29 +281,29 @@ void TeleopTurtle::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
       {
       if (joy->axes[1] == 1)
 	     {
-	       vel= drive_f(0.35*joy->axes[1], vel,dist);
+	       vel= drive_f(0.35*joy->axes[1], vel);
 	       ROS_INFO("You are going Forward with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
 	       cout<<"\n\t\tValue of distance is: "<<dist;
        }
       if (joy->axes[2] == -1)  
 	     {
-	       vel = drive_lr(0.35*joy->axes[2],vel,dist);
+	       vel = drive_lr(0.35*joy->axes[2],vel);
 	       ROS_INFO("You are going RIGHT with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
 	     }
       if (joy->axes[1] == -1)
 	     {
-	       vel= drive_b(0.5*joy->axes[1],vel,dist);
+	       vel= drive_b(0.5*joy->axes[1],vel);
 	       ROS_INFO("You are going Backward with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
 	     }
       if (joy->axes[2] == 1)
 	     {
-	       vel = drive_lr(0.5*joy->axes[2],vel,dist);
+	       vel = drive_lr(0.5*joy->axes[2],vel);
 	       ROS_INFO("You are going LEFT with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
 	     }
       if(joy->buttons[8] == 1 && joy->buttons[9] == 1)
 	     {
 	       flag=1;
-	       vel = drive_fb(0*joy->buttons[8],vel,dist);
+	       vel = drive_f(0*joy->buttons[8],vel);
 	       vel.angular.z = 0*joy->buttons[8];
 	       ROS_INFO("You have stopped with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
         } 
