@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <Tele_current.h>
-
+#include <Tele_close.h>
+#include <tf/transform_broadcaster.h>
 
 const int n_dists = 10;
 void write_dist(double vale) {
@@ -19,7 +19,6 @@ void write_dist(double vale) {
     cout << "Unable to open file!";
   }
 }
-
 
 ///////////////*****FUNCTION CALL*****/////////////////////////
 void fCall()
@@ -48,24 +47,13 @@ void fCall()
   }
 }
 
-/*
-/////////-----DRIVE-----------//////////////
-double drive()
-{
-  double d;
-  d = (rand()%10+1);
-  return d;
-} */
-
 ////////--------MAIN----------/////////////////
 
 int main(int argc, char** argv)
 {
   fCall();
   ros::init(argc, argv, "tele_current");
-  ROS_INFO("In the Main");	  
   Tele_current tel;
-  tel.init_func();
+  tel.init_func();  
   ros::spin();
 }
-

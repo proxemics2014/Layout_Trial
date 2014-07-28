@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   wiimote
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -84,7 +85,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES Layout_Trial
-  CATKIN_DEPENDS ps3joy roscpp rospy std_msgs wiimote
+  CATKIN_DEPENDS ps3joy roscpp rospy std_msgs wiimote tf
 #  DEPENDS system_lib
 )
 
@@ -114,6 +115,7 @@ add_executable(Main_current src/Main_current.cpp)
 # add_dependencies(ross_gcer_study_node ross_gcer_study_generate_messages_cpp)
 add_dependencies(Main Layout_Trials_generate_messages_cpp)
 add_dependencies(Main_current Layout_Trials_generate_messages_cpp)
+
 ##add_dependencies(try_test_pswii ross_gcer_study_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against

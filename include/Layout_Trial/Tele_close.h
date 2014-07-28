@@ -9,6 +9,7 @@
 #include <Performance.h>
 #include <tf/transform_broadcaster.h>
 #include <Broadcastpioneer.h>
+#include <string>
 
 #ifndef Tele_current_H_
 #define Tele_current_H_
@@ -27,6 +28,7 @@ float AUTO_POS[] = {home,user_home,home,user_home,home,user_home,home,0,home,0,h
 float shuffled_pos[] = {0,0,0,0,0,0};
 float user_inputs[] = {middle_user,middleN_user,nearN_user,near_user,far_user,farN_user}; // make driving to home autonomous? 
 double perf_dist,randomized,p_v=0.0;
+
 class Tele_current
 {
  public:
@@ -39,16 +41,17 @@ class Tele_current
   float dist;
   int flag;
   geometry_msgs::Twist vel;
-  TransformBroadcasterExample broadcaster;
+  ros::NodeHandle nh_;
   void init_func();
   void return_array(double);
   void buttonPress();
-  void increment();
+  void increment(); 
  private:
   void lasercall(const sensor_msgs::LaserScan::ConstPtr& laser);
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
   void joyCall(const sensor_msgs::Joy::ConstPtr& wii);
-  ros::NodeHandle nh_;
+  TransformBroadcasterExample broadcaster;
+  tf::TransformBroadcaster br;
   int linear_, angular_;
   ros::Publisher vel_pub_;
   ros::Subscriber joy_sub_;
@@ -79,17 +82,14 @@ void Tele_current::init_func()
 {
   nh_.param("axis_linear", linear_, linear_);
   vel_pub_ = nh_.advertise<geometry_msgs::Twist>("RosAria/cmd_vel", 1);
-  //laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 50, &Tele_current::lasercall, this);
-  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 10, &Tele_current::joyCallback, this);
-  wii_sub_ = nh_.subscribe<sensor_msgs::Joy>("/wiimote/joy", 10, &Tele_current::joyCall, this); 
+  //laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 50, &Tele_current::lasercall, this)
+  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 1, &Tele_current::joyCallback, this);
+  wii_sub_ = nh_.subscribe<sensor_msgs::Joy>("/wiimote/joy", 1, &Tele_current::joyCall, this); 
   ROS_INFO("Value of iteration is: %d",Q);
   chosenfunction = chooseFunction();   // this function reads DATA from the file and correspodingly returns the CHOSEN FUNCTION!
-  //chosenfunction=0;
   p_v=float(peak_value(chosenfunction));
   return_array(p_v); 
   cout<<"\n\nPeak value of this function is: "<<p_v;
-  //cout<<"\n\nLaser Reading : "<<laser_Wii.ranges[0];
-  //srand (time(NULL));
   ROS_INFO("Value of Chosen Function: %d",chosenfunction);
 }
 //////////////-------------JOY CALL--------------///////////////////////
@@ -97,7 +97,7 @@ void Tele_current::joyCall(const sensor_msgs::Joy::ConstPtr& wii_call)
 {
     if(flag==0)
     { 
-    laser_sub_=nh_.subscribe<sensor_msgs::LaserScan>("/scan", 10, &Tele_current::lasercall,this); 
+    laser_sub_=nh_.subscribe<sensor_msgs::LaserScan>("/scan", 1, &Tele_current::lasercall,this); 
     ROS_INFO("Entering Wiimote function call");
     if(wii_call->buttons[8] == 1)
     {
@@ -124,13 +124,15 @@ void Tele_current::joyCall(const sensor_msgs::Joy::ConstPtr& wii_call)
        flag=1;
 	    }
   else
-    joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 10, &Tele_current::joyCallback, this); // coming out of function
+    joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 1, &Tele_current::joyCallback, this); // coming out of function
 }
 ////////////----------LASER CALL------------////////////////////////////////
 void Tele_current::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
 {
  arraySize = laser->ranges.size(); 
  dist = laser->ranges[256];
+ tf::Transform transform(tf::Quaternion(0,0,0), tf::Vector3((5.0-dist),0,0)); // replace 2 with dist 
+ br.sendTransform(tf::StampedTransform (transform, ros::Time::now(),"/pioneer","/world"));
 /////////////NEW////////////	
   if(flag==0)
   {
@@ -142,7 +144,7 @@ void Tele_current::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
     }
   }
  //////////////// 
-   if(flag==2 && Q0)
+   if(flag==2 && Q<=21)
     {  
       if(Q==-1) Q=0;
       if (((AUTO_POS[Q]) != dist))
@@ -167,9 +169,9 @@ void Tele_current::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
         for(int i=0,j=7;i<=5;i++,j+=2)
         {
         AUTO_POS[j]=shuffled_pos[i];
-        ROS_INFO(shuffled_pos[i]);
+        ROS_INFO("%f",shuffled_pos[i]);
         }
-        joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 10, &Tele_current::joyCallback, this);
+        joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 1, &Tele_current::joyCallback, this);
       }
      else if((AUTO_POS[Q])>(dist+0.05) && (dist !=0))
       { 
@@ -193,7 +195,7 @@ void Tele_current::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
       dist = laser->ranges[0];
       buttonPress();
       flag =1;
-      joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 10, &Tele_current::joyCallback, this);
+      joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 1, &Tele_current::joyCallback, this);
     } 
     if(flag==10)
     {
@@ -221,14 +223,14 @@ void Tele_current::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
       }
   else 
     {
-      joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 10, &Tele_current::joyCallback, this);
+      joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 1, &Tele_current::joyCallback, this);
     } 
 }
 
 ///////////////---------JOY CALL BACK-------------///////////////////
 void Tele_current::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
-  laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 10, &Tele_current::lasercall, this);  
+  laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 1, &Tele_current::lasercall, this);  
   if(joy->buttons[3]==1)
     {
      flag=2;
@@ -238,56 +240,56 @@ void Tele_current::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 	    //Q+=1;
 	    ROS_INFO("WILL NOW CALL LASERSCAN!");
 	    ROS_INFO("ITERATION is: %d", Q);
-	    laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 10, &Tele_current::lasercall, this);  
+	    laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 1, &Tele_current::lasercall, this);  
 	   }
     } 	
   if((joy->buttons[11] == 1))
     {
       flag = 0;
       ROS_INFO("Switching to Wiimote Controller");
-      wii_sub_ = nh_.subscribe<sensor_msgs::Joy>("/wiimote/joy", 10, &Tele_current::joyCall, this);
+      wii_sub_ = nh_.subscribe<sensor_msgs::Joy>("/wiimote/joy", 1, &Tele_current::joyCall, this);
     } 
   if(joy->buttons[9]==1 && joy->buttons[12]==1) 
     {
       ROS_INFO("Pressed triangle");
       ros::Duration(1.0).sleep();
       flag=4;
-      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",10,&Tele_current::lasercall, this);
+      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
     }
   if (joy->buttons[9]==1 && joy->buttons[13]==1) 
     {
       ROS_INFO("Pressed circle");	
       ros::Duration(1.0).sleep();	
       flag = 5;
-      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",10,&Tele_current::lasercall, this);
+      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
     }
   if (joy->buttons[9]==1 && joy->buttons[14]==1) 
     {
       ROS_INFO("Pressed cross");    	
       ros::Duration(1.0).sleep();	
       flag = 6;
-      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",10,&Tele_current::lasercall, this);
+      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
     }
   if(joy->buttons[9]==1 && joy->buttons[15]==1)
     {
       ROS_INFO("Pressed square");
       ros::Duration(1.0).sleep();
       flag =7;
-      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",10,&Tele_current::lasercall, this);
+      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
     }
      if(joy->buttons[4]==1 && joy->buttons[10]==1) 
      {
        flag=10;
-       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",10,&Tele_current::lasercall, this); 
+       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this); 
       }
      if(joy->buttons[6]==1 && joy->buttons[10]==1)
      {
        flag=11;
-       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",10,&Tele_current::lasercall, this);
+       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
      }
      if ((joy->axes[1] !=0.05) && joy->buttons[10]==1)
 	     {
-         laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",10,&Tele_current::lasercall, this);
+         laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
          vel= drive_f(0.35*joy->axes[1],vel);
 	       ROS_INFO("You are moving with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
          stop=1;
@@ -295,7 +297,7 @@ void Tele_current::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
        }
       if (joy->axes[2] != 0.05 && joy->buttons[10]==1)
 	     {
-         laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",10,&Tele_current::lasercall, this);
+         laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
          vel = drive_lr(0.35*joy->axes[2],vel);
 	       ROS_INFO("You are turning with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
          stop=1;
@@ -322,7 +324,7 @@ void Tele_current::buttonPress()
 {
 //  perf_dist = functioncall(chosenfunction,double(u));
   randomized = random_prob();
-  char tf_str[]="/box_triangle","/box_circle","/box_cross","/box_square"};
+  string tf_str[4]= {"/box_triangle","/box_circle","/box_cross","/box_square"};
   ROS_INFO("Value of Performance with respect to distance: %f and value of compare: %f",randomized,perf_dist);
   if(perf_dist<randomized)
     {
@@ -332,7 +334,7 @@ void Tele_current::buttonPress()
       if(flag==4)
 	   {
       broadcaster.selectPrimaryTarget(tf_str[rand()%3 + 1]);
-      broadcaster.selectSecondaryTarget("/person_face");
+      broadcaster.selectFallbackTarget("/person_face");
      //   lookAtTarget(tf_str[rand()%3 + 1]);
 	    ROS_INFO("Not looking at Triangle!");
 	    ROS_INFO(" ");
@@ -340,7 +342,7 @@ void Tele_current::buttonPress()
       if(flag==5)
 	   {
       broadcaster.selectPrimaryTarget(tf_str[rand()%2 + 2]);
-      broadcaster.selectSecondaryTarget("/person_face");
+      broadcaster.selectFallbackTarget("/person_face");
      // lookAtTarget(tf_str[rand()%2 + 2]);
 	    ROS_INFO("Not looking at Circle!");
 	    ROS_INFO(" ");
@@ -348,7 +350,7 @@ void Tele_current::buttonPress()
       if(flag==6)
 	   {
       broadcaster.selectPrimaryTarget(tf_str[rand()%2]);
-      broadcaster.selectSecondaryTarget("/person_face");
+      broadcaster.selectFallbackTarget("/person_face");
      // lookAtTarget(tf_str[rand()%2]);
 	    ROS_INFO("Not looking at Cross!");
 	    ROS_INFO(" ");
@@ -356,7 +358,7 @@ void Tele_current::buttonPress()
       if(flag==7)
 	   {
       broadcaster.selectPrimaryTarget(tf_str[rand()%3]);
-      broadcaster.selectSecondaryTarget("/person_face");
+      broadcaster.selectFallbackTarget("/person_face");
 	   // lookAtTarget(tf_str[rand()%3]); 
       ROS_INFO("Not looking at Square!");
 	    ROS_INFO(" ");
@@ -372,8 +374,7 @@ void Tele_current::buttonPress()
       if(flag==4)
 	     {
         broadcaster.selectPrimaryTarget(tf_str[0]);
-        broadcaster.selectSecondaryTarget("/person_face");
-
+        broadcaster.selectFallbackTarget("/person_face");
 //         lookAtTarget("/box_triangle");
 	       ROS_INFO("Looking at Triangle!");
 	       ROS_INFO(" ");
@@ -381,7 +382,7 @@ void Tele_current::buttonPress()
       if(flag==5)
 	     {
         broadcaster.selectPrimaryTarget(tf_str[1]);
-        broadcaster.selectSecondaryTarget("/person_face");
+        broadcaster.selectFallbackTarget("/person_face");
         // lookAtTarget("/box_circle");
 	       ROS_INFO("Looking at Circle!");
 	       ROS_INFO(" ");
@@ -389,7 +390,7 @@ void Tele_current::buttonPress()
       if(flag==6)
 	     {
         broadcaster.selectPrimaryTarget(tf_str[2]);
-        broadcaster.selectSecondaryTarget("/person_face");
+        broadcaster.selectFallbackTarget("/person_face");
 //         lookAtTarget("/box_cross");
 	       ROS_INFO("Looking at Cross!");
 	       ROS_INFO(" ");
@@ -397,7 +398,7 @@ void Tele_current::buttonPress()
       if(flag==7)
 	     {
         broadcaster.selectPrimaryTarget(tf_str[3]);
-        broadcaster.selectSecondaryTarget("/person_face");
+        broadcaster.selectFallbackTarget("/person_face");
 //         lookAtTarget("/box_square");
 	       ROS_INFO("Looking at Square!");
 	       ROS_INFO(" ");

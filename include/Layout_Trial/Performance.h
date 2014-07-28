@@ -76,7 +76,7 @@ double calc_performance_mid(double distance)
 
 
 ////---------------/////////////
-extern float compare=1.0;
+//extern float compare=1.0;
 
 #ifndef FUNCTIONCALL_H_
 #define FUNCTIONCALL_H_

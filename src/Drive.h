@@ -2,7 +2,6 @@
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/LaserScan.h>
-#include <laserscan.h>
 #include <fstream>
 #include <iostream>
 #include <time.h>
