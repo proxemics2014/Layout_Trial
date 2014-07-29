@@ -1,7 +1,9 @@
 <launch>
-	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
-	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
-	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
-	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
-	<node pkg="tf" type="static_transform_publisher" name="tf_to_tf" output="screen" args="X Y Z Y P R FROM TO 100" />
+	<node pkg="tf" type="static_transform_publisher" name="world_to_person" output="screen" args="0 0 0 0 0 0 /world /person 100" />
+	<node pkg="tf" type="static_transform_publisher" name="person_to_person_face" output="screen" args="0 0 1.5 0 0 0 /person /person_face 100" />
+	<node pkg="tf" type="static_transform_publisher" name="person_to_box_triangle" output="screen" args="0 2.0 0 0 0 0 /person /box_triangle 100" />
+	<node pkg="tf" type="static_transform_publisher" name="person_to_box_circle" output="screen" args="0 1.0 0 0 0 0 /person /box_circle 100" />
+	<node pkg="tf" type="static_transform_publisher" name="person_to_box_cross" output="screen" args="0 -1.0 0 0 0 0 /person /box_cross 100" />
+	<node pkg="tf" type="static_transform_publisher" name="person_to_box_square" output="screen" args="0 -2.0 0 0 0 0 /person /box_square 100" />
+	<node pkg="tf" type="static_transform_publisher" name="pioneer_to_bandit" output="screen" args="0 0 1.0 0 0 0 /pioneer /bandit 100" />
 </launch>
