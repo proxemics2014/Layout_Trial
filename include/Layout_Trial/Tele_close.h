@@ -28,7 +28,7 @@ float AUTO_POS[] = {home,user_home,home,user_home,home,user_home,home,0,home,0,h
 float shuffled_pos[] = {0,0,0,0,0,0};
 float user_inputs[] = {middle_user,middleN_user,nearN_user,near_user,far_user,farN_user}; // make driving to home autonomous? 
 double perf_dist,randomized,p_v=0.0;
-
+  
 class Tele_current
 {
  public:
@@ -42,6 +42,7 @@ class Tele_current
   int flag;
   geometry_msgs::Twist vel;
   ros::NodeHandle nh_;
+  TransformBroadcasterExample bcs;
   void init_func();
   void return_array(double);
   void buttonPress();
@@ -50,7 +51,6 @@ class Tele_current
   void lasercall(const sensor_msgs::LaserScan::ConstPtr& laser);
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
   void joyCall(const sensor_msgs::Joy::ConstPtr& wii);
-  TransformBroadcasterExample broadcaster;
   tf::TransformBroadcaster br;
   int linear_, angular_;
   ros::Publisher vel_pub_;
@@ -129,10 +129,16 @@ void Tele_current::joyCall(const sensor_msgs::Joy::ConstPtr& wii_call)
 ////////////----------LASER CALL------------////////////////////////////////
 void Tele_current::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
 {
+ bcs.spinOnce();
+ ros::spinOnce();
+ //bcs.selectPrimaryTarget("/person_face");
+ bcs.selectFallbackTarget("/person_face");
  arraySize = laser->ranges.size(); 
  dist = laser->ranges[256];
- tf::Transform transform(tf::Quaternion(0,0,0), tf::Vector3((5.0-dist),0,0)); // replace 2 with dist 
- br.sendTransform(tf::StampedTransform (transform, ros::Time::now(),"/pioneer","/world"));
+ tf::Transform transform(tf::Quaternion(3.14,0,0), tf::Vector3((5.0-dist),0,0)); // replace 2 with dist 
+ br.sendTransform(tf::StampedTransform (transform, ros::Time::now(), "/world", "/pioneer/laser"));
+ //bcs.publishTransform( transform, "/world", "/bandit/primary_target" );
+ //bcs.publishTransform( transform, "/world", "/bandit/fallback_target" );
 /////////////NEW////////////	
   if(flag==0)
   {
@@ -230,6 +236,11 @@ void Tele_current::lasercall(const sensor_msgs::LaserScan::ConstPtr& laser)
 ///////////////---------JOY CALL BACK-------------///////////////////
 void Tele_current::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
+
+  //tf::Transform transform(tf::Quaternion(0,0,0), tf::Vector3((5.0-dist),0,0));
+  //br.sendTransform(tf::StampedTransform (transform, ros::Time::now(), "/pioneer/laser","/world"));
+  //bcs.publishTransform( transform, "/box_triangle", "/bandit/primary_target" );
+  //bcs.publishTransform( transform, "/box_square", "/bandit/fallback_target" );
   laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 1, &Tele_current::lasercall, this);  
   if(joy->buttons[3]==1)
     {
@@ -252,28 +263,28 @@ void Tele_current::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
   if(joy->buttons[9]==1 && joy->buttons[12]==1) 
     {
       ROS_INFO("Pressed triangle");
-      ros::Duration(1.0).sleep();
+     // ros::Duration(1.0).sleep();
       flag=4;
       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
     }
   if (joy->buttons[9]==1 && joy->buttons[13]==1) 
     {
       ROS_INFO("Pressed circle");	
-      ros::Duration(1.0).sleep();	
+     // ros::Duration(1.0).sleep();	
       flag = 5;
       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
     }
   if (joy->buttons[9]==1 && joy->buttons[14]==1) 
     {
       ROS_INFO("Pressed cross");    	
-      ros::Duration(1.0).sleep();	
+    //  ros::Duration(1.0).sleep();	
       flag = 6;
       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
     }
   if(joy->buttons[9]==1 && joy->buttons[15]==1)
     {
       ROS_INFO("Pressed square");
-      ros::Duration(1.0).sleep();
+    //  ros::Duration(1.0).sleep();
       flag =7;
       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
     }
@@ -321,44 +332,46 @@ void Tele_current::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         } 
 }  
 void Tele_current::buttonPress()
-{
+{    
 //  perf_dist = functioncall(chosenfunction,double(u));
   randomized = random_prob();
-  string tf_str[4]= {"/box_triangle","/box_circle","/box_cross","/box_square"};
+  //string tf_str[4]= {"/box_triangle","/box_circle","/box_cross","/box_square"};
   ROS_INFO("Value of Performance with respect to distance: %f and value of compare: %f",randomized,perf_dist);
   if(perf_dist<randomized)
     {
-      //ROS_INFO("I am going to give you the wrong answerr!");	  	
-      //ROS_INFO(" ");
       srand (time(NULL));
       if(flag==4)
 	   {
-      broadcaster.selectPrimaryTarget(tf_str[rand()%3 + 1]);
-      broadcaster.selectFallbackTarget("/person_face");
+      bcs.selectPrimaryTarget("/box_circle");
+      ros::Duration(2.0).sleep();
+      bcs.selectPrimaryTarget("/person_face");
      //   lookAtTarget(tf_str[rand()%3 + 1]);
 	    ROS_INFO("Not looking at Triangle!");
 	    ROS_INFO(" ");
 	    }
       if(flag==5)
 	   {
-      broadcaster.selectPrimaryTarget(tf_str[rand()%2 + 2]);
-      broadcaster.selectFallbackTarget("/person_face");
+        bcs.selectPrimaryTarget("/box_triangle");
+      ros::Duration(2.0).sleep();
+      bcs.selectPrimaryTarget("/person_face");
      // lookAtTarget(tf_str[rand()%2 + 2]);
 	    ROS_INFO("Not looking at Circle!");
 	    ROS_INFO(" ");
 	   }
       if(flag==6)
 	   {
-      broadcaster.selectPrimaryTarget(tf_str[rand()%2]);
-      broadcaster.selectFallbackTarget("/person_face");
+      bcs.selectPrimaryTarget("/box_square");
+      ros::Duration(2.0).sleep();
+      bcs.selectPrimaryTarget("/person_face");
      // lookAtTarget(tf_str[rand()%2]);
 	    ROS_INFO("Not looking at Cross!");
 	    ROS_INFO(" ");
 	   }
       if(flag==7)
 	   {
-      broadcaster.selectPrimaryTarget(tf_str[rand()%3]);
-      broadcaster.selectFallbackTarget("/person_face");
+      bcs.selectPrimaryTarget("/box_cross");
+      ros::Duration(2.0).sleep();
+      bcs.selectPrimaryTarget("/person_face");
 	   // lookAtTarget(tf_str[rand()%3]); 
       ROS_INFO("Not looking at Square!");
 	    ROS_INFO(" ");
@@ -368,38 +381,44 @@ void Tele_current::buttonPress()
     }
   else
     {
+      tf::Transform transform(tf::Quaternion(0,0,0), tf::Vector3((5.0-dist),0,0));
       //ROS_INFO("I WILL LOOK AT THE CORRECT PLACE!");	  	
       //ROS_INFO(" ");
       //ros::Duration(2.0).sleep();
       if(flag==4)
 	     {
-        broadcaster.selectPrimaryTarget(tf_str[0]);
-        broadcaster.selectFallbackTarget("/person_face");
+      //bcs.publishTransform( transform, "/box_triangle", "/bandit/primary_target" );
+        bcs.selectPrimaryTarget("/box_triangle");
+      ros::Duration(2.0).sleep();
+      bcs.selectPrimaryTarget("/person_face");
 //         lookAtTarget("/box_triangle");
 	       ROS_INFO("Looking at Triangle!");
 	       ROS_INFO(" ");
 	     }
       if(flag==5)
 	     {
-        broadcaster.selectPrimaryTarget(tf_str[1]);
-        broadcaster.selectFallbackTarget("/person_face");
+      //tf::Transform transform(tf::Quaternion(0,0,0), tf::Vector3((5.0-dist),0,0));
+      //bcs.publishTransform( transform, "/box_circle", "/bandit/primary_target" );
+        bcs.selectPrimaryTarget("/box_circle");
+      ros::Duration(2.0).sleep();
+      bcs.selectPrimaryTarget("/person_face");
         // lookAtTarget("/box_circle");
 	       ROS_INFO("Looking at Circle!");
 	       ROS_INFO(" ");
 	     }
       if(flag==6)
 	     {
-        broadcaster.selectPrimaryTarget(tf_str[2]);
-        broadcaster.selectFallbackTarget("/person_face");
-//         lookAtTarget("/box_cross");
+        bcs.selectPrimaryTarget("/box_cross");
+      ros::Duration(2.0).sleep();
+      bcs.selectPrimaryTarget("/person_face");
 	       ROS_INFO("Looking at Cross!");
 	       ROS_INFO(" ");
 	     }
       if(flag==7)
 	     {
-        broadcaster.selectPrimaryTarget(tf_str[3]);
-        broadcaster.selectFallbackTarget("/person_face");
-//         lookAtTarget("/box_square");
+        bcs.selectPrimaryTarget("/box_square");
+      ros::Duration(2.0).sleep();
+      bcs.selectPrimaryTarget("/person_face");
 	       ROS_INFO("Looking at Square!");
 	       ROS_INFO(" ");
 	     }
