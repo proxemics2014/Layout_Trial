@@ -1,27 +1,17 @@
 #include <iostream>
 #include <cstdio>
 #include <fstream>
-#include <math.h>
-
-float MIN_PERFORMANCE = 0.1;
-float MAX_PERFORMANCE = 0.9;
-float MIN_DISTANCE = 0.25;
-float MAX_DISTANCE = 4.75;
-
-float ReturnD[3] = {0.0,0.0,0.0};
 /*
   #define MIN_PERFORMANCE (0.1)
   #define MAX_PERFORMANCE (0.9)
   #define MIN_DISTANCE (0.25)
   #define MAX_DISTANCE (4.75)
-
+*/
 double MIN_PERFORMANCE = 0.1;
 double MAX_PERFORMANCE = 0.9;
 double MIN_DISTANCE = 0.25;
 double MAX_DISTANCE = 4.75;
 using namespace std;
-
-
 
 
 #ifndef CALC_PERFORMANCE_PEAK_H
@@ -38,7 +28,7 @@ double calc_performance_peak(double distance, double peak)
   double performance = 2.0 * (0.5 - fabs(param - peak));
   return MIN_PERFORMANCE + (MAX_PERFORMANCE - MIN_PERFORMANCE) * performance ;  // scale between MIN_/MAX_PERFORMANCE
 }
-#endif  /* CALC_PERFORMANCE_PEAK_H 
+#endif  /* CALC_PERFORMANCE_PEAK_H */
 
 ///////////////---------ROSS MEAD's MAIL------------//////////////////
 #ifndef CALC_PERFORMANCE_UNIFORM_H_
@@ -50,7 +40,7 @@ double calc_performance_uniform(double distance)
   return MAX_PERFORMANCE;
 }
 
-#endif /* CALC_PERFORMANCE_UNIFORM_H 
+#endif /* CALC_PERFORMANCE_UNIFORM_H */
 
 #ifndef CALC_PERFORMANCE_FAR_H
 #define CALC_PERFORMANCE_FAR_H
@@ -60,7 +50,7 @@ double calc_performance_far(double distance)
 {
   return calc_performance_peak(distance, 0.75);
 } 
-#endif /* CALC_PERFORMANCE_FAR_H 
+#endif /* CALC_PERFORMANCE_FAR_H */
 
 
 #ifndef CALC_PERFORMANCE_NEAR_H
@@ -71,7 +61,7 @@ double calc_performance_near(double distance)
 {
   return calc_performance_peak(distance, 0.25);
 }
-#endif /*CALC_PERFORMANCE_NEAR_H
+#endif /*CALC_PERFORMANCE_NEAR_H*/
 
 
 #ifndef CALC_PERFORMANCE_MID_H
@@ -86,7 +76,7 @@ double calc_performance_mid(double distance)
 
 
 ////---------------/////////////
-//extern float compare=1.0;
+extern float compare=1.0;
 
 #ifndef FUNCTIONCALL_H_
 #define FUNCTIONCALL_H_
@@ -96,18 +86,30 @@ double functioncall(int random, double distance)
 {
   if(random==0)
     {
+     // compare = 0.9;
+     // cout<<"Uniform function!";
+//      uniform++;
       return calc_performance_uniform(distance);
     }
   if(random==1)
     {
+     // compare = 0.75;
+//      farperf++;
+   //   cout<<"Far function!";
       return calc_performance_far(distance);
     }
   if(random==2)
     {
+     // compare = 0.5;
+ //     midperf++;
+    //  cout<<"Mid function!";
       return calc_performance_mid(distance);
     }
   if(random==3)
     {
+    //  compare = 0.25;
+  //    nearperf++;
+   //   cout<<"Near function!";
       return calc_performance_near(distance);
     }
   
@@ -118,42 +120,42 @@ double functioncall(int random, double distance)
 #define PEAK_VALUE_H_
 double peak_value(int c)
 {
-  float max=0.0,temp=0.0;
-  for(float i=0.25;i<=4.75;i+=0.05)
-  {
-    if(c==0)
+  double max=0.0,temp=0.0;
+  for(double i=0.25;i<5;i+=0.05)
+    {
+      if(c==0)
 	  {
 	  temp= calc_performance_uniform(i);
 	  if(max<temp)
 	    {
 	      max=temp;
 	    }
-	  }
-    if(c==1)
-	  {
+	}
+      if(c==1)
+	{
 	  temp= calc_performance_far(i);
 	  if(max<temp)
 	    {
 	      max=temp;
 	    }
-	  }
-    if(c==2)
-	  {
+	}
+      if(c==2)
+	{
 	  temp= calc_performance_mid(i);
 	  if(max<temp)
 	    {
 	      max=temp;
 	    }
-	  }
-    if(c==3)
-	  {
+	}
+      if(c==3)
+	{
 	  temp= calc_performance_near(i);
 	  if(max<temp)
 	    {
 	      max=temp;
 	    }
-	  }
-  }
+	}
+    }
   return max; 	
 }
 #endif
@@ -194,69 +196,4 @@ void file_handling (float distance_written, int chosenOne)
     cout << "\nUnable to open file!";
   }
 }      
-#endif
-
-//// Gaussian Trial ///////////////////
-
-
-#ifndef CALC_PERFORMANCE_UNIFORM_H_
-#define CALC_PERFORMANCE_UNIFORM_H_
-float calc_performance_uniform(float distance)
-{
-  return MAX_PERFORMANCE;
-}
-#endif /* CALC_PERFORMANCE_H_  */
-
-
-#ifndef CALC_PERFORMANCE_NEAR_H_
-#define CALC_PERFORMANCE_NEAR_H_
-float calc_performance_near(float distance)
-{
-  float mean = (ReturnD[0]+ReturnD[2])/2;
-  float variance = 0.3;
-  float pi = 3.141593;
-  float e = float(exp);
-  float power_num = pow((dist-mean),2);
-  float power_den = (-1)*(2*pow(variance,2));
-  float nearGauss = (1/(variance*sqrt(2*pi)))*pow(e,(power_num/power_den));
-  return nearGauss;
-}
-#endif /* CALC_PERFORMANCE_NEAR_H_ */
-
-
-#ifndef CALC_PERFORMANCE_FAR_H_
-#define CALC_PERFORMANCE_FAR_H_
-float calc_performance_far(float distance)
-{
-  float mean = (ReturnD[0]+ReturnD[1])/2;
-  float variance = 0.3;
-  float pi = 3.141593;
-  float e = float(exp);
-  float power_num = pow((dist-mean),2);
-  float power_den = (-1)*(2*pow(variance,2));
-  float farGauss = (1/(variance*sqrt(2*pi)))*pow(e,(power_num/power_den));
-  return farGauss;
-}
-#endif /* CALC_PERFORMANCE_FAR_H_  */
-
-
-#ifndef CALC_PERFORMANCE_MID_H_
-#define CALC_PERFORMANCE_MID_H_
-float calc_performance_mid(float distance)
-{
- return (MAX_PERFORMANCE+MIN_PERFORMANCE)/2;
-}
-#endif /* CALC_PERFORMANCE_MID_H_  */
-
-
-#ifndef USING_DATA_H_
-#define USING_DATA_H_
-
-float usingdata(float D[])
-{
-  int k=0;
-  int sizeD = sizeof(D)/sizeof(double);
-  for(int i=0,j=1;j<sizeD;i+=2,j+=2)
-    ReturnD[k++] = (D[i]+D[j])/2;
-}
 #endif
