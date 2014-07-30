@@ -125,7 +125,7 @@
 		    }
 	  else
 	  {
-		usingdata(user_inputs[]);
+		usingdata(user_inputs);
 	    joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 1, &Tele_current::joyCallback, this); // coming out of function
 	  }
 	}
@@ -140,9 +140,6 @@
 	 dist = laser->ranges[256];
 	 tf::Transform transform(tf::Quaternion(3.14,0,0), tf::Vector3((5.0-dist),0,0)); // replace 2 with dist 
 	 br.sendTransform(tf::StampedTransform (transform, ros::Time::now(), "/world", "/pioneer/laser"));
-	 //bcs.publishTransform( transform, "/world", "/bandit/primary_target" );
-	 //bcs.publishTransform( transform, "/world", "/bandit/fallback_target" );
-	/////////////NEW////////////	
 	  if(flag==0)
 	  {
 	    if(dist>(4.75) || dist<(0.5))
@@ -206,40 +203,14 @@
 	      flag =1;
 	      joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 1, &Tele_current::joyCallback, this);
 	    } 
-	    if(flag==10)
-	    {
-	      if(dist <=(2.8)) //user_home-offset
-	      {
-	       vel= driver(0.35,0.0); 
-	      }
-	      else if(dist>2.8) //user_home-offset
-	      {
-	       vel=driver(0.0,0.0);
-	      }
-	      vel_pub_.publish(vel);
-	      }
-	      else if(flag ==11)
-	      {
-	       if(dist >(0.5))
-	       {
-	       vel= driver(-0.35,0.0);
-	       }
-	       else
-	        {
-	        vel=driver(0.0,0.0);
-	       }
-	      vel_pub_.publish(vel);
-	      }
-	  else 
-	    {
-	      joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 1, &Tele_current::joyCallback, this);
-	    } 
 	}
 	
 	///////////////---------JOY CALL BACK-------------///////////////////
 	void Tele_current::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 	{
-	  laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 1, &Tele_current::lasercall, this);  
+	 bcs.spinOnce();
+	 ros::spinOnce();
+	 laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 1, &Tele_current::lasercall, this);  
 	  if(joy->buttons[3]==1)
 	    {
 	     flag=2;
@@ -248,57 +219,48 @@
 		    increment(); // increments Q
 		    //Q+=1;
 		    ROS_INFO("WILL NOW CALL LASERSCAN!");
-		    ROS_INFO("ITERATION is: %d", Q);
-		    laser_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 1, &Tele_current::lasercall, this);  
+		    ROS_INFO("ITERATION is: %d", Q); 
 		   }
 	    } 	
 	  if((joy->buttons[11] == 1))
 	    {
 	      flag = 0;
 	      ROS_INFO("Switching to Wiimote Controller");
-	      wii_sub_ = nh_.subscribe<sensor_msgs::Joy>("/wiimote/joy", 1, &Tele_current::joyCall, this);
 	    } 
 	  if(joy->buttons[9]==1 && joy->buttons[12]==1) 
 	    {
 	      ROS_INFO("Pressed triangle");
 	      ros::Duration(1.0).sleep();
 	      flag=4;
-	      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
 	    }
 	  if (joy->buttons[9]==1 && joy->buttons[13]==1) 
 	    {
 	      ROS_INFO("Pressed circle");	
 	      ros::Duration(1.0).sleep();	
 	      flag = 5;
-	      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
 	    }
 	  if (joy->buttons[9]==1 && joy->buttons[14]==1) 
 	    {
 	      ROS_INFO("Pressed cross");    	
 	      ros::Duration(1.0).sleep();	
 	      flag = 6;
-	      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
 	    }
 	  if(joy->buttons[9]==1 && joy->buttons[15]==1)
 	    {
 	      ROS_INFO("Pressed square");
 	      ros::Duration(1.0).sleep();
 	      flag =7;
-	      laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
 	    }
 	     if(joy->buttons[4]==1 && joy->buttons[10]==1) 
 	     {
 	       flag=10;
-	       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this); 
 	      }
 	     if(joy->buttons[6]==1 && joy->buttons[10]==1)
 	     {
 	       flag=11;
-	       laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
 	     }
 	     if ((joy->axes[1] !=0.05) && joy->buttons[10]==1)
 		     {
-	         laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
 	         vel= drive_f(0.35*joy->axes[1],vel);
 		       ROS_INFO("You are moving with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
 	         stop=1;
@@ -306,7 +268,6 @@
 	       }
 	      if (joy->axes[2] != 0.05 && joy->buttons[10]==1)
 		     {
-	         laser_sub_= nh_.subscribe<sensor_msgs::LaserScan>("/scan",1,&Tele_current::lasercall, this);
 	         vel = drive_lr(0.35*joy->axes[2],vel);
 		       ROS_INFO("You are turning with Linear: %f, Angular: %f", vel.linear.x, vel.angular.z);
 	         stop=1;
@@ -340,33 +301,47 @@
 	      srand (time(NULL));
 	      if(flag==4)
 		   {
-			bcs.spinOnce();
-			ros::spinOnce();
-			bcs.selectPrimaryTarget("/box_circle");
 			ROS_INFO("Not looking at Triangle!");
 			ROS_INFO(" ");
+			 
+			bcs.selectPrimaryTarget("/box_circle");
+			bcs.spinOnce();
+			ros::spinOnce();
+			
+			ros::Duration(1.0).sleep();
+			bcs.selectPrimaryTarget("/person_face");
+			ros::spinOnce();
 			}
 	      if(flag==5)
 		   {
+			bcs.selectPrimaryTarget("/box_triangle");
 			bcs.spinOnce();
 			ros::spinOnce();
-			bcs.selectPrimaryTarget("/box_triangle");
+			ros::Duration(1.0).sleep();
+			bcs.selectPrimaryTarget("/person_face");
+			ros::spinOnce();
 		    ROS_INFO("Not looking at Circle!");
 		    ROS_INFO(" ");
 		   }
 	      if(flag==6)
 		   {
+			bcs.selectPrimaryTarget("/box_square");
 			bcs.spinOnce();
 			ros::spinOnce();
-			bcs.selectPrimaryTarget("/box_square");
+			ros::Duration(1.0).sleep();
+			bcs.selectPrimaryTarget("/person_face");
+			ros::spinOnce();
 		    ROS_INFO("Not looking at Cross!");
 		    ROS_INFO(" ");
 		   }
 	      if(flag==7)
 		   {
+			bcs.selectPrimaryTarget("/box_cross");
 			bcs.spinOnce();
 			ros::spinOnce();
-			bcs.selectPrimaryTarget("/box_cross");
+			ros::Duration(1.0).sleep();
+			bcs.selectPrimaryTarget("/person_face");
+			ros::spinOnce();
 			ROS_INFO("Not looking at Square!");
 		    ROS_INFO(" ");
 		   }
@@ -375,46 +350,54 @@
 	    }
 	  else
 	    {
-	      tf::Transform transform(tf::Quaternion(0,0,0), tf::Vector3((5.0-dist),0,0));
+	     // tf::Transform transform(tf::Quaternion(0,0,0), tf::Vector3((5.0-dist),0,0));
 	      //ROS_INFO("I WILL LOOK AT THE CORRECT PLACE!");	  	
 	      //ROS_INFO(" ");
 	      //ros::Duration(2.0).sleep();
 	      if(flag==4)
 		     {
+			   bcs.selectPrimaryTarget("/box_triangle");
 			   bcs.spinOnce();
 			   ros::spinOnce();
-			   bcs.selectPrimaryTarget("/box_triangle");
+			   bcs.selectPrimaryTarget("/person_face");
+			   ros::spinOnce();
 		       ROS_INFO("Looking at Triangle!");
 		       ROS_INFO(" ");
 		     }
 	      if(flag==5)
 		     {
+			   bcs.selectPrimaryTarget("/box_circle");
 			   bcs.spinOnce();
 			   ros::spinOnce();
-			   bcs.selectPrimaryTarget("/box_circle");
+			   bcs.selectPrimaryTarget("/person_face");
+			   ros::spinOnce();
 		       ROS_INFO("Looking at Circle!");
 		       ROS_INFO(" ");
 		     }
 	      if(flag==6)
 		     {
+			   bcs.selectPrimaryTarget("/box_cross");
 			   bcs.spinOnce();
 			   ros::spinOnce();
-			   bcs.selectPrimaryTarget("/box_cross");
+			   bcs.selectPrimaryTarget("/person_face");
+			   ros::spinOnce();
 		       ROS_INFO("Looking at Cross!");
 		       ROS_INFO(" ");
 		     }
 	      if(flag==7)
 		     {
+			   bcs.selectPrimaryTarget("/box_square");
 			   bcs.spinOnce();
 			   ros::spinOnce();
-			   bcs.selectPrimaryTarget("/box_square");
+			   bcs.selectPrimaryTarget("/person_face");
+			   ros::spinOnce();
 		       ROS_INFO("Looking at Square!");
 		       ROS_INFO(" ");
 		     }
 			system("mplayer /home/robotlab/catkin_ws/src/Layout_Trial/src/WINNER.mp3");
 	      flag = 1;	      	
 	    }
-	 	   bcs.selectPrimaryTarget("/person_face");	 
+	 	 //  bcs.selectPrimaryTarget("/person_face");	 
 	}
 	void Tele_current::increment()
 	{	
@@ -425,5 +408,5 @@
 	      ste=0;
 	    }
 	}
-	#endif
+#endif
 	
